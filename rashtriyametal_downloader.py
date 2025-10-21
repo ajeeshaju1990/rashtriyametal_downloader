@@ -17,14 +17,24 @@ import pandas as pd
 # =========================
 # CONFIG — EDIT IF NEEDED
 # =========================
+import os
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Use repo-relative paths by default (works in GitHub Actions on Linux/Windows)
+REL_DOWNLOAD_DIR = os.path.join(REPO_ROOT, "data", "RashtriyaMetal", "PDFs")
+REL_EXCEL_LOG   = os.path.join(REPO_ROOT, "data", "RashtriyaMetal", "RMIL_Price_Log.xlsx")
+
+# If you want to override locally on your laptop, set these ENV VARS before running:
+#   set RMIL_DOWNLOAD_DIR="D:\OneDrive - V-Guard Industries Limited\Ajeesh_Selenium_Automation\RashtriyaMetal\PDFs"
+#   set RMIL_EXCEL_LOG="D:\OneDrive - V-Guard Industries Limited\Ajeesh_Selenium_Automation\RashtriyaMetal\RMIL_Price_Log.xlsx"
+DOWNLOAD_DIR = os.getenv("RMIL_DOWNLOAD_DIR", REL_DOWNLOAD_DIR)
+EXCEL_LOG    = os.getenv("RMIL_EXCEL_LOG", REL_EXCEL_LOG)
+
 CIRCULARS_PAGE = "https://rashtriyametal.com/price-circulars/"
-DEFAULT_PDF_HINT = "pdf"  # class/button hint on the page; we will fallback to all .pdf links
-DOWNLOAD_DIR = r"D:\OneDrive - V-Guard Industries Limited\Ajeesh_Selenium_Automation\RashtriyaMetal\PDFs"
-EXCEL_LOG = r"D:\OneDrive - V-Guard Industries Limited\Ajeesh_Selenium_Automation\RashtriyaMetal\RMIL_Price_Log.xlsx"
+DEFAULT_PDF_HINT = "pdf"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36"
 
-# Optional: pin a sample PDF URL (useful if the page breaks). Comment out normally.
-# SAMPLE_PDF_URL = "https://rashtriyametal.com/wp-content/uploads/2025/10/rmil16102025-pdff.pdf"
+# Optional: pin a sample PDF URL for debugging only
 SAMPLE_PDF_URL = None
 
 # =========================
