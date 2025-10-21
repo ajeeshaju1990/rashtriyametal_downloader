@@ -6,9 +6,13 @@ on:
     - cron: "35 3 * * *"
   workflow_dispatch: {}
 
+permissions:
+  contents: write   # allow committing back to the repo
+
 jobs:
   run:
-    runs-on: ubuntu-latest  # cross-platform, repo-relative paths Just Work
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,19 +22,45 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install system deps for Camelot
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ghostscript python3-tk libglib2.0-0 libsm6 libxrender1 libxext6
+
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 pdfplumber pandas openpyxl
+          pip install requests beautifulsoup4 pdfplumber pandas openpyxl camelot-py[cv]
 
       - name: Run downloader
         run: |
           python rashtriyametal_downloader.py
 
-      - name: Upload artifacts (PDFs + Excel log)
+      - name: Show generated files
+        run: |
+          echo "Workspace tree:"
+          ls -R
+
+      - name: Commit data outputs to main
+        run: |
+          # Only commit if there are changes in data/
+          if [ -d "data" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data
+            if ! git diff --cached --quiet; then
+              git commit -m "Update RMIL data $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+              git push
+            else
+              echo "No changes to commit."
+            fi
+          fi
+
+      - name: Upload artifact (optional backup)
         uses: actions/upload-artifact@v4
         with:
           name: rmil-output
           path: |
             data/RashtriyaMetal/PDFs/**
+            data/RashtriyaMetal/RMIL_Table.xlsx
             data/RashtriyaMetal/RMIL_Price_Log.xlsx
